@@ -21,6 +21,7 @@ class RepositoryServiceProvider extends ServiceProvider
             $engine->addRule(new GroupBundleRule());
 
             return $engine;
+
         });
     }
 }
