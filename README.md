@@ -28,8 +28,8 @@ Routes:
 
 # 1. Get Products from cart (GET):  http://127.0.0.1:8000/getUserCart
 
-# 2. Remove Products From cart (POST):  http://127.0.0.1:8000/addProductInCart?product_id=5 removeProductFromCart
+# 2. ADD Products IN cart (quantity is optional quantity = 1 as default if not provided): (POST) http://127.0.0.1:8000/addProductInCart?product_id=5
 
-# 3. ADD Products IN cart (quantity is optional quantity = 1 as default if not provided): (POST) http://127.0.0.1:8000/addProductInCart?product_id=5
+# 3. Remove Products From cart (POST):  http://127.0.0.1:8000/removeProductFromCart?product_id=5
 
 # 4. Change product quantity in cart (POST) http://127.0.0.1:8000/setCartProductQuantity/product_id=5
