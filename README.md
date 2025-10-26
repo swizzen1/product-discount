@@ -9,11 +9,17 @@ composer install
 # 3. Copy the example environment file
 cp .env.example .env
 
-# 4. Run Migrations
+# 5. Generate the application key
+php artisan key:generate
+
+# 6. Run Migrations
 php artisan Migrate
 
-# 5. Run Seeder
+# 7. Run Seeder
 php artisan db:seed
 
-# 5. Spin up the server
+# 8. Spin up the server
 php artisan serve
+
+# 9. For Testing Run:
+php artisan test
