@@ -24,10 +24,11 @@ class DiscountEngineTest extends TestCase
     {
         parent::setUp();
 
-        // მოდულების binding–ები (DIP)
+        // binding–ები
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
 
         // DiscountEngine singleton + Rule
+        // აქ შეგვიძლია ასევე სხვა Bundle მივაწოდოთ დამატებით თუ გვექნება მომავალში
         $this->app->singleton(DiscountEngine::class, function () {
             $engine = new DiscountEngine();
             // თუ გინდა merchant-ზე სკოპი, ჩასვი ownerUserId=10
@@ -35,13 +36,11 @@ class DiscountEngineTest extends TestCase
             return $engine;
         });
 
-        // აუცილებელია მიგრაციები ამოვარდეს
         $this->artisan('migrate', ['--force' => true]);
     }
 
     protected function seedScenario(): void
     {
-        // Users (FK-ებისთვის)
         User::query()->updateOrCreate(
             ['id'=>10], ['name'=>'Merchant 10','email'=>'m10@example.com','password'=>Hash::make('pass')]
         );
@@ -56,7 +55,6 @@ class DiscountEngineTest extends TestCase
         Product::query()->updateOrCreate(['product_id'=>4], ['user_id'=>10,'title'=>'p4','price'=>7]);
         Product::query()->updateOrCreate(['product_id'=>5], ['user_id'=>10,'title'=>'p5','price'=>20]);
 
-        // Group {2,5} with 15%
         $group = UserProductGroup::query()->updateOrCreate(['group_id'=>1], ['user_id'=>10,'discount'=>15]);
         ProductGroupItem::query()->updateOrCreate(['group_id'=>$group->group_id,'product_id'=>2], []);
         ProductGroupItem::query()->updateOrCreate(['group_id'=>$group->group_id,'product_id'=>5], []);
@@ -71,7 +69,6 @@ class DiscountEngineTest extends TestCase
         CartItem::query()->updateOrCreate(['user_id'=>15,'product_id'=>5], ['quantity'=>2]);
         CartItem::query()->updateOrCreate(['user_id'=>15,'product_id'=>1], ['quantity'=>1]);
 
-        /** @var CartService $service */
         $service = $this->app->make(CartService::class);
 
         $result = $service->snapshot(15);
@@ -79,7 +76,6 @@ class DiscountEngineTest extends TestCase
         $this->assertEquals(10.5, $result['discount']);
         $this->assertCount(3, $result['products']);
 
-        // პროდუქტის ფასები სწორად ბრუნდება
         $indexed = collect($result['products'])->keyBy('product_id');
         $this->assertSame(15.0, $indexed[2]['price']);
         $this->assertSame(20.0, $indexed[5]['price']);
@@ -90,7 +86,6 @@ class DiscountEngineTest extends TestCase
     {
         $this->seedScenario();
 
-        // Cart: მარტო #2 x3 (არ არის #5) -> ფასდაკლება არაა
         CartItem::query()->updateOrCreate(['user_id'=>15,'product_id'=>2], ['quantity'=>3]);
 
         $service = $this->app->make(CartService::class);
@@ -118,7 +113,6 @@ class DiscountEngineTest extends TestCase
     {
         $this->seedScenario();
 
-        // დავამატოთ მეორე ჯგუფი {1,2} 10%
         $g2 = UserProductGroup::query()->create(['user_id'=>10,'discount'=>10]);
         ProductGroupItem::query()->create(['group_id'=>$g2->group_id,'product_id'=>1]);
         ProductGroupItem::query()->create(['group_id'=>$g2->group_id,'product_id'=>2]);
@@ -131,12 +125,6 @@ class DiscountEngineTest extends TestCase
         $service = $this->app->make(CartService::class);
         $result = $service->snapshot(15);
 
-        /**
-         * წესით პირველად ჯგუფი {2,5} გამოიყენებს მინ.2 ერთეულს (#2 და #5), მისცემს 10.5-ს.
-         * დარჩება #2 => 1 ცალი, #1 => 1 ცალი => ჯგუფი {1,2} მიიღებს მინ.1 სეტს:
-         * (10 + 15) * 10% = 2.5
-         * ჯამი: 10.5 + 2.5 = 13.0
-         */
         $this->assertEquals(13.0, $result['discount']);
     }
 }
