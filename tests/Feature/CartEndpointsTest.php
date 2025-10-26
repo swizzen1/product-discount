@@ -86,7 +86,7 @@ class CartWebEndpointsTest extends TestCase
             ->assertJson(['discount' => 0.0]);
     }
 
-    // რაოდენობის შეცვლა 0 რაოდენობის შემთხვევაში წაიღოს კალათიდან პროდუქტი
+    // რაოდენობის შეცვლა 0 რაოდენობის შემთხვევაში წაიშალოს კალათიდან პროდუქტი
     public function test_set_quantity_zero_removes_item_web_routes()
     {
         CartItem::query()->create(['user_id' => 15, 'product_id' => 2, 'quantity' => 2]);
