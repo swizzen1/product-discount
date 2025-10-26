@@ -24,7 +24,7 @@ class CartService
         $this->cartRepository->remove($userId, $productId);
     }
 
-    public function setQuantity(int $userId, int $productId, int $qty): void
+    public function setQuantity(int $userId, int $productId, int $qty = 1): void
     {
         $this->cartRepository->setQuantity($userId, $productId, $qty);
     }

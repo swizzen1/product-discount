@@ -10,7 +10,7 @@ class SetQtyRequest extends FormRequest
     {
         return [
             'product_id' => 'required|integer|exists:products,product_id',
-            'quantity'   => 'required|integer|min:0'
+            'quantity'   => 'nullable|integer|min:0'
         ];
     }
 }

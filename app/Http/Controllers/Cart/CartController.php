@@ -34,7 +34,7 @@ class CartController extends Controller
 
     public function setQuantity(SetQtyRequest $request): JsonResponse
     {
-        $this->service->setQuantity($this->userId, (int)$request->product_id, (int)$request->quantity);
+        $this->service->setQuantity($this->userId, (int)$request->product_id, (int)$request->quantity ?? 1);
 
         return response()->json(['message'=>'Quantity updated']);
     }
