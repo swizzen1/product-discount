@@ -13,7 +13,7 @@ cp .env.example .env
 php artisan key:generate
 
 # 6. Run Migrations
-php artisan Migrate
+php artisan migrate
 
 # 7. Run Seeder
 php artisan db:seed
