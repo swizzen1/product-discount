@@ -1,5 +1,5 @@
 # 1. Clone the repository
-git clone https://github.com/yourusername/your-repo.git
+git clone https://github.com/swizzen1/product-discount.git
 
 cd your-repo
 
