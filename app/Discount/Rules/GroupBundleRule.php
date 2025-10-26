@@ -12,45 +12,36 @@ class GroupBundleRule implements DiscountRuleInterface
 
     public function compute(CartSnapshot $snapshot): float
     {
-        $availableQty = $snapshot->qtyMap();
-        $priceMap     = $snapshot->priceMap();
+        $available = collect($snapshot->qtyMap());
+        $prices    = collect($snapshot->priceMap());
 
-        $groups = UserProductGroup::query()
-            ->with(['items:group_id,product_id'])
-            ->get(['group_id','user_id','discount']);
+        return UserProductGroup::query()
+            ->with('items:group_id,product_id')
+            ->get(['group_id', 'discount'])
+            ->reduce(function (float $total, UserProductGroup $group) use (&$available, $prices) {
+                $ids = $group->items->pluck('product_id')->map(fn($v) => (int) $v);
 
-        if ($groups->isEmpty()) return 0.0;
+                if ($ids->isEmpty() || $ids->contains(fn($id) => ($available[$id] ?? 0) <= 0)) {
+                    return $total;
+                }
 
-        $total = 0.0;
+                // მინიმალური რაოდენობა
+                $minSets = $ids->map(fn($id) => $available[$id])->min();
+                if ($minSets <= 0) {
+                    return $total;
+                }
 
-        foreach ($groups as $g) {
-            $productIds = $g->items->pluck('product_id')->map(fn($v)=>(int)$v)->all();
-            if (empty($productIds)) continue;
+                //  ჯამური ფასი x1
+                $oneSetSum = $ids->map(fn($id) => $prices[$id] ?? 0)->sum();
 
-            // ყველა პროდუქტი უნდა იყოს ხელმისაწვდომი
-            $hasAll = true;
-            foreach ($productIds as $pid) {
-                if (($availableQty[$pid] ?? 0) <= 0) { $hasAll = false; break; }
-            }
-            if (!$hasAll) continue;
+                // ფასდაკლება
+                $discount = $minSets * $oneSetSum * ($group->discount / 100);
+                $total += $discount;
 
-            // მინიმალური პროდუქტის რაოდენობა (თუ პროდუქტებს შორის რაოდენობრივი სხვაობაა ავიღოთ მინიმალური)
-            $minSets = PHP_INT_MAX;
-            foreach ($productIds as $pid) $minSets = min($minSets, (int)$availableQty[$pid]);
-            if ($minSets <= 0) continue;
+                // გამოვაკლოთ უკვე გამოყენებული რაოდენობა
+                $ids->each(fn($id) => $available[$id] -= $minSets);
 
-            // ერთი სეტის ჯამი
-            $oneSetSum = 0.0;
-            foreach ($productIds as $pid) $oneSetSum += (float)($priceMap[$pid] ?? 0.0);
-
-            $groupDiscount = $minSets * $oneSetSum * ((float)$g->discount / 100.0);
-            $total += $groupDiscount;
-
-            foreach ($productIds as $pid) $availableQty[$pid] -= $minSets;
-
-            $productIds->each(fn ($pid) => $availableQty[$pid] -= $minSets);
-        }
-
-        return $total;
+                return $total;
+            }, 0.0);
     }
 }
