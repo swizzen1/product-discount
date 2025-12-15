@@ -1,34 +1,115 @@
-# 1. Clone the repository
+# Product Discount – Laravel Cart API
+
+A Laravel-based cart and product discount system providing REST-style API endpoints for managing cart products.
+
+---
+
+## 🚀 Installation & Setup
+
+Follow the steps below to run the project locally.
+
+### 1️⃣ Clone the repository
+```bash
 git clone https://github.com/swizzen1/product-discount.git
+cd product-discount
+```
 
-
-# 2. Install PHP dependencies
+### 2️⃣ Install PHP dependencies
+```bash
 composer install
+```
 
-# 3. Copy the example environment file
+### 3️⃣ Copy the environment file
+```bash
 cp .env.example .env
+```
 
-# 5. Generate the application key
+### 4️⃣ Generate the application key
+```bash
 php artisan key:generate
+```
 
-# 6. Run Migrations
+### 5️⃣ Run database migrations
+```bash
 php artisan migrate
+```
 
-# 7. Run Seeder
+### 6️⃣ Run database seeders
+```bash
 php artisan db:seed
+```
 
-# 8. Spin up the server
+### 7️⃣ Start the development server
+```bash
 php artisan serve
+```
 
-# 9. For Testing Run:
+The application will be available at:
+
+```
+http://127.0.0.1:8000
+```
+
+---
+
+## 🧪 Running Tests
+
+Run the test suite using:
+
+```bash
 php artisan test
+```
 
-Routes:
+---
 
-# 1. Get Products from cart (GET):  http://127.0.0.1:8000/getUserCart
+## 🔗 API Routes
 
-# 2. ADD Products IN cart (quantity is optional quantity = 1 as default if not provided): (POST) http://127.0.0.1:8000/addProductInCart?product_id=5
+### 1️⃣ Get products from cart
+- **Method:** `GET`
+- **URL:**
+```
+http://127.0.0.1:8000/getUserCart
+```
 
-# 3. Remove Products From cart (POST):  http://127.0.0.1:8000/removeProductFromCart?product_id=5
+---
 
-# 4. Change product quantity in cart (POST) http://127.0.0.1:8000/setCartProductQuantity/product_id=5
+### 2️⃣ Add product to cart
+- **Method:** `POST`
+- **Description:**  
+  `quantity` is optional. Defaults to **1** if not provided.
+- **URL:**
+```
+http://127.0.0.1:8000/addProductInCart?product_id=5
+```
+
+---
+
+### 3️⃣ Remove product from cart
+- **Method:** `POST`
+- **URL:**
+```
+http://127.0.0.1:8000/removeProductFromCart?product_id=5
+```
+
+---
+
+### 4️⃣ Change product quantity in cart
+- **Method:** `POST`
+- **URL:**
+```
+http://127.0.0.1:8000/setCartProductQuantity?product_id=5
+```
+
+---
+
+## 📌 Notes
+
+- Ensure database credentials are set correctly in `.env`
+- Default database driver: **MySQL**
+- Laravel application uses standard REST-style endpoints
+
+---
+
+## 👨‍💻 Author
+
+Built with ❤️ using **Laravel**
